@@ -25,12 +25,20 @@ app.get('/notes/new', (req, res) => {
   res.render('new-note');
 });
 
+app.get('/notes/:id', (req, res) => {
+  Note.findById(req.params.id, (err, note) => {
+    if (err) throw err;
+
+  res.render('show-note', {note: note});
+  });  
+});
+
 app.post('/notes', (req, res) => {
   Note.create(req.body, (err, note) => {
     if (err) throw err;
+    res.redirect(`/notes/${note._id}`);
   });
   console.log(req.body);
-  res.redirect('/');
 });
 
 mongoose.connect('mongodb://localhost:27017/evernode', (err) => {
