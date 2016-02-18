@@ -2,6 +2,12 @@
 
 const Note = require('../models/note');
 
+module.exports.index = (req, res) => {
+  Note.find({}, (err, notes) => {
+    res.render('notes-index', {notes: notes});
+  });
+};
+
 module.exports.newNote = (req, res) => {
   res.render('new-note');
 };
@@ -19,5 +25,13 @@ module.exports.create = (req, res) => {
     if (err) throw err;
 
     res.redirect(`/notes/${note._id}`);
+  });
+};
+
+module.exports.destroy = (req, res) => {
+  Note.findByIdAndRemove(req.params.id, (err) => {
+    if (err) throw err;
+
+    res.redirect('/notes');
   });
 };
