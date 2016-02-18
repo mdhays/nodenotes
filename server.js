@@ -6,6 +6,10 @@ const mongoose = require('mongoose');
 
 const app = express();
 const port = process.env.PORT || 3000;
+const Note = mongoose.model('notes', mongoose.Schema({
+  title: String,
+  text: String
+}));
 
 app.set('view engine', 'jade');
 
@@ -22,9 +26,17 @@ app.get('/notes/new', (req, res) => {
 });
 
 app.post('/notes', (req, res) => {
+  Note.create(req.body, (err, note) => {
+    if (err) throw err;
+  });
+  console.log(req.body);
   res.redirect('/');
 });
 
-app.listen(3000, () => {
-  console.log(`nodenotes server running on port: ${port}`)
+mongoose.connect('mongodb://localhost:27017/evernode', (err) => {
+  if (err) throw err;
+
+  app.listen(port, () => {
+    console.log(`nodenotes server running on port: ${port}`)
+  });
 });
