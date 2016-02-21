@@ -1,30 +1,12 @@
 'use strict';
 
 const Note = require('../models/note');
-
-// All these functions are being exported in one object instead of having to call them.
-// We used es6 to change these functions over from arrow functions to named functions.
-// It also eliminated the need for calling module.exports for every function.
-
+const Category = require('../models/category');
+// Exports these functions that are listening for route changes.
+// When the route changes, the corresponding function will execute.
 module.exports = {
-  edit (req, res) {
-    Note.findById(req.params.id, (err, note) => {
-      if (err) throw err;
-
-      res.render('new-note', {note: note});
-    });
-  },
-
-  update (req, res) {
-    Note.findByIdAndUpdate(req.params.id,
-      req.body, (err, note) => {
-        if (err) throw err;
-
-        res.redirect(`/notes/${note._id}`);
-      }
-    );
-  },
-
+  // Finds all notes in the Notes collection, and loads the notes-index.jade view, along with an object of local
+  // variables for the view.
   index (req, res) {
     Note.find({}, (err, notes) => {
       if (err) throw err;
@@ -33,15 +15,13 @@ module.exports = {
     });
   },
 
-  newNote (req, res) {
-    res.render('new-note');
-  },
-
-  show (req, res) {
-    Note.findById(req.params.id, (err, note) => {
+  new (req, res) {
+    Category.find({}, (err, categories) => {
       if (err) throw err;
 
-      res.render('show-note', {note: note});
+      res.render('new-note', {
+        categories: categories
+      });
     });
   },
 
@@ -53,12 +33,34 @@ module.exports = {
     });
   },
 
+  show (req, res) {
+    res.render('show-note', {note: req.note});
+  },
+
+  edit (req, res) {
+    Category.find({}, (err, categories) => {
+      if (err) throw err;
+
+      res.render('new-note', {
+        note: req.note,
+        categories: categories
+      });
+    });
+  },
+
+  update (req, res) {
+    req.note.update(req.body, (err) => {
+      if (err) throw err;
+
+      res.redirect(`/notes/${req.note._id}`);
+    });
+  },
+
   destroy (req, res) {
-    Note.findByIdAndRemove(req.params.id, (err) => {
+    req.note.remove((err) => {
       if (err) throw err;
 
       res.redirect('/notes');
     });
   }
 };
-
